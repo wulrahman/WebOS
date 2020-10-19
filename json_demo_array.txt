@@ -1,0 +1,8 @@
+[ 
+{"Application-id":"0", "Name":"Calculator", "Source":"http://localhost.192.168.0.5.xip.io/calculator/index.html", "Width":"350px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/icon/svg/calculator-1575939.svg"},
+{"Application-id":"1", "Name":"Camera", "Source":"http://localhost.192.168.0.5.xip.io/camera/index.html", "Width":"600px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/icon/svg/camera-2365232.svg"},
+{"Application-id":"2", "Name":"Weather", "Source":"http://localhost.192.168.0.5.xip.io/weather/app/index.html", "Width":"500px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/icon/svg/weather-2365236.svg"},
+{"Application-id":"3", "Name":"Tower", "Source":"http://localhost.192.168.0.5.xip.io/tower_game-master/index.html", "Width":"500px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/tower_game-master/icon.webp"},
+{"Application-id":"4", "Name":"Music", "Source":"http://localhost.192.168.0.5.xip.io/music/dist/index.html", "Width":"500px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/icon/svg/itunes-2365226.svg"},
+{"Application-id":"5", "Name":"Underrun", "Source":"https://js13kgames.com/games/underrun/index.html", "Width":"500px", "Height":"500px", "Icon":"http://localhost.192.168.0.5.xip.io/icon/underrun.gif"}
+]

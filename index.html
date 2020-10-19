@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<style>
+.Window-Control {width: max-content;-webkit-transform: translateY(-100%);transform: translateY(-100%);padding: 0 5px;padding: 10px;}
+
+.Window-Control .Control {
+    margin-right: 10px;
+    height: 12px;
+    width: 12px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+}
+.Body embed {
+    display: block;
+}
+.Window-Name {
+    display: block;
+    padding: 10px;
+}
+
+div#Main-WebOS {
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+}
+div#Menu-Desktop {
+    height: 40px;
+    background-color: #2a2a37;
+    width: -webkit-fill-available;
+    opacity: 0.9;
+}
+
+div#Application-Desktop {
+    width: -webkit-fill-available;
+    height: calc(100vh - 40px);
+    margin: 0;
+    padding: 0;
+    z-index: 0;
+}
+* {}
+
+div#Home {
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    background-image: url(Background.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-blend-mode: multiply;
+    background-size: cover;
+    /* background-color: #444; */
+    flex-wrap: wrap;
+    z-index: 0;
+    display: flex;
+}
+.Form-Appid-1 {
+    padding: 10px;
+}
+
+.Form-Appid-1 input {
+    display: block;
+    padding: 10px;
+    margin: 10px;
+    width: -webkit-fill-available;
+}
+.Window {
+    z-index: 9;
+    width: max-content;
+    height: max-content;
+    position: fixed;
+    top: 40px;
+    touch-action: none;
+    user-select: none;
+    transition: transform 0s cubic-bezier(0.46, -0.09, 0.69, 0.13) 0s;
+    overflow: hidden;
+    border-radius: 5px 5px;
+    box-shadow: -1px 1px 4px #88888885;
+}
+
+.Window .Main{width: 100%;height: 100%;background-color: #f1f1f1;border-radius: 5px 5px;}
+
+.Window .Header {
+    cursor: move;
+    z-index: 10;
+    width:-webkit-fill-available;
+    background-color: #ddd;
+    /* color: #fff; */
+    opacity: 0.95;
+    text-align: center;
+    height: 38px!important;
+}
+
+.Window .Body {
+    padding: 0;
+    width: -webkit-fill-available;
+    height: max-content;
+    margin: 0;
+}
+body {
+    background-color: #444;
+    font-family: 'Quicksand', sans-serif;
+    width: -webkit-fill-available;
+    height: -webkit-fill-available;
+    position: fixed;
+    padding: 0;
+    margin: 0;
+}
+#Application {
+    height: -webkit-fill-available;
+    width: -webkit-fill-available;
+}
+#Application-Grid {
+    justify-content: space-between;
+    list-style: none;
+    margin:0;
+    display: inline-grid;
+    height: -webkit-fill-available;
+    padding:0;
+    width: -webkit-fill-available;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: repeat(4, auto);
+    grid-gap: 40px;
+    align-items: center;
+    padding: 40px;
+    align-content: space-evenly;
+    justify-content: space-evenly;
+    grid-auto-flow: column dense;
+    grid-auto-flow: row dense;
+}
+#Application-Grid li{
+    width: max-content;
+    align-self: center;
+    text-align: center;
+}
+#Application-Grid .Application-Icon{
+    background-color: white;
+    border-radius: 16px;
+    width: max-content;
+    height: max-content;
+    box-shadow: -1px 1px 4px #88888885;
+}
+.Application-Icon img{
+    width:70px;
+    height:70px;
+    display:block;
+    background-color:transparent;
+    border-radius:16px;
+}
+span.Window-Minimise {
+    background-color: rgb(90, 192, 90)!important;
+}
+
+span.Window-Fullscreen {
+    background-color: rgb(253, 216, 0)!important;
+}
+
+span.Window-Close {
+    background-color: rgb(237, 89, 74)!important;
+}
+</style>
+<head>
+  <title>WebOS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+</head>
+
+<body id="WebOS">
+    <div id="Main-WebOS">
+        <div id="Home">
+            <div id="Menu-Desktop"></div>
+            <div id="Application-Desktop">
+                <div id="Application">
+                    <ul id="Application-Grid">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- Draggable DIV -->
+        <div class="Window" id="Window-Application-Login" style="display:none">
+            <div class="Main">
+                <div class="Header">Login</div>
+                <div class="Body">
+                    <div class="Form-Appid-1">
+                        <input type="text" placeholder="Enter Your User Name">
+                        <input type="password" placeholder="Enter Your Password">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+<script>
+    // Make the DIV element draggable:
+var Application_Grid = document.getElementById("Application-Grid");
+var Main_WebOS = document.getElementById('Main-WebOS');
+// var Windows = document.getElementsByClassName('Window');
+var Windows = {};
+var Applications_Icon = {};
+var Z_Index_Map = [0];
+
+var Applications = {};
+
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.onreadystatechange = function() {
+
+  if (this.readyState == 4 && this.status == 200) {
+
+    Applications = JSON.parse(this.responseText);
+    for (var i = 0; i < Applications.length; i++) {
+
+        Applications_Icon[i] = Application_Icon_Template(Applications[i]);
+        Application_Grid.append(Applications_Icon[i]);
+
+        Applications_Icon[i].onclick = (event) => {
+
+            var id_onclick = event.path[1].Id.split("-")[1];
+            Windows[id_onclick] = Application_Window_Template(Applications[id_onclick]);
+            Main_WebOS.append(Windows[id_onclick]);
+            dragElement(Windows[id_onclick]);
+
+        }
+
+    }
+
+  }
+
+};
+
+interval = setInterval("getResult()", 1000);
+// Alert the value of result and clear interval
+function getResult() {
+    // once we get a result, turn interval off. 
+    if(Applications != null) {
+        interval = clearInterval(interval);
+    }
+}
+
+xmlhttp.open("GET", "json_demo_array.txt", true);
+xmlhttp.send();
+
+function Application_Icon_Template(Applications) {
+
+    var Application_Icon = {};
+    Application_Icon.li = document.createElement("li");
+    Application_Icon.li.className = "Application";
+    Application_Icon.div = document.createElement("div");
+    Application_Icon.div.className = "Application-Icon";
+    Application_Icon.div.Id = "Application-" + Applications['Application-id'];
+    Application_Icon.img = document.createElement("img");
+    Application_Icon.img.src = Applications['Icon'];
+    Application_Icon.div.append(Application_Icon.img);
+    Application_Icon.li.append(Application_Icon.div);
+    return Application_Icon.li;
+
+}
+
+function Application_Window_Template(Applications) {
+    var Window_Append = {};
+    Window_Append.div = {};
+    Window_Append.span = {};
+
+    Window_Append.div[1] = document.createElement("div");
+    Window_Append.div[1].className = "Window";
+    Window_Append.div[1].id = "Window-Application-" + Applications['Application-id'];
+
+    Windows_Zindex = Math.max.apply(null,Z_Index_Map)+1;
+    Z_Index_Map.push(Windows_Zindex);
+    
+    Window_Append.div[1].style.zIndex = Windows_Zindex;
+
+    Window_Append.div[1].onclick = (event) => {
+
+        var id_onclick = event.path[3].id.split("-")[2];
+        var Windows_Zindex = Math.max.apply(null,Z_Index_Map)+1;
+        Z_Index_Map.push(Windows_Zindex);
+
+        if(Windows[id_onclick].getAttribute("style").indexOf("z-index:") == -1)  {
+            Windows[id_onclick].style.zIndex =  Windows_Zindex;
+        }
+        else if(Windows[id_onclick].style.zIndex != Math.max(Z_Index_Map)) {
+            Windows[id_onclick].style.zIndex =  Windows_Zindex;
+        }
+
+    };
+
+    Window_Append.div[2] = document.createElement("div");
+    Window_Append.div[2].className = "Main";
+
+    Window_Append.div[3] = document.createElement("div");
+    Window_Append.div[3].className = "Header";
+
+    Window_Append.div[4] = document.createElement("div");
+    Window_Append.div[4].className = "Body";
+
+    Window_Append.div[5] = document.createElement("div");
+    Window_Append.div[5].className = "Window-Control";
+
+    Window_Append.div[6] = document.createElement("div");
+    Window_Append.div[6].className = "Window-Name";
+    Window_Append.div[6].innerHTML = Applications['Name'];
+
+    Window_Append.span[1] = document.createElement("span");
+    Window_Append.span[1].className = "Control Window-Close";    
+    Window_Append.span[1].id = "Window-Close-" + Applications['Application-id'];
+    Window_Append.span[1].onmousedown = Window_Close;
+    Window_Append.span[1].ontouchstart = Window_Close;
+
+    function Window_Close(event) {
+        var id_onclick = event.path[0].id.split("-")[2];
+        Windows[id_onclick].remove();
+    };
+
+    function Window_Full(event) {
+        var id_onclick = event.path[0].id.split("-")[2];
+        Windows[id_onclick].style.top = "40px";
+        Windows[id_onclick].style.right = 0;
+        Windows[id_onclick].style.left = 0;
+        Windows[id_onclick].style.bottom = 0;
+        Windows[id_onclick].style.width = "100%";
+        Windows[id_onclick].style.height = "calc(100vh - 40px)";
+        Windows[id_onclick].style.transform = "inherit";
+        Windows[id_onclick].childNodes[0].childNodes[1].childNodes[0].width = "100%";
+        Windows[id_onclick].childNodes[0].childNodes[1].childNodes[0].style.height = "calc(100vh - 78px)";
+        // Windows[id_onclick].querySelector(".Header").onmousedown = null;
+        // Windows[id_onclick].querySelector(".Header").ontouchstart = null;
+    }
+
+    function Window_Resume_Size(event) {
+        var id_onclick = event.path[0].id.split("-")[2];
+        Windows[id_onclick].style.top = "40px";
+        Windows[id_onclick].style.right = 0;
+        Windows[id_onclick].style.left = 0;
+        Windows[id_onclick].style.bottom = 0;
+        Windows[id_onclick].style.width = "max-content";
+        Windows[id_onclick].style.height = "max-content";
+        Windows[id_onclick].style.transform = "inherit";
+        Windows[id_onclick].childNodes[0].childNodes[1].childNodes[0].width = Applications["Width"];
+        Windows[id_onclick].childNodes[0].childNodes[1].childNodes[0].style.height = Applications["Height"];
+        Windows[id_onclick].querySelector(".Header").onmousedown = main_drag;
+        Windows[id_onclick].querySelector(".Header").ontouchstart = main_drag;
+    }
+
+    Window_Append.span[2] = document.createElement("span");
+    Window_Append.span[2].className = "Control Window-Fullscreen";
+    Window_Append.span[2].id = "Window-Fullscreen-" + Applications['Application-id'];
+
+    Window_Append.span[2].onmousedown = Window_Resume_Size;
+    Window_Append.span[2].ontouchstart = Window_Resume_Size;
+
+    Window_Append.span[3] = document.createElement("span");
+    Window_Append.span[3].className = "Control Window-Minimise";
+    Window_Append.span[3].id = "Window-Minimise-" + Applications['Application-id'];
+
+    Window_Append.span[3].onmousedown = Window_Full;
+    Window_Append.span[3].ontouchstart = Window_Full;
+
+
+    Window_Append.div[5].append(Window_Append.span[1]);
+    Window_Append.div[5].append(Window_Append.span[2]);
+    Window_Append.div[5].append(Window_Append.span[3]);
+    Window_Append.div[3].append(Window_Append.div[6]);
+    Window_Append.div[3].append(Window_Append.div[5]);
+
+    Window_Append.embed = document.createElement("embed");
+    Window_Append.embed.src = Applications['Source'];
+    Window_Append.embed.width = Applications['Width'];
+    Window_Append.embed.height = Applications['Height'];
+
+    Window_Append.div[4].append(Window_Append.embed);
+    Window_Append.div[2].append(Window_Append.div[3])
+    Window_Append.div[2].append(Window_Append.div[4]);
+    Window_Append.div[1].append(Window_Append.div[2]);
+
+    // console.log(Window_Append.div[1]);
+    return Window_Append.div[1];
+}
+
+// for (var i = 0; i < Windows.length; i++) {
+// }
+
+function dragElement(Window_Object) {
+    // console.log(element.childNodes)
+
+    var object = {};
+    
+    object.position = {};
+    object.position.initial = [0, 0]
+    object.position.current = [0, 0];
+    object.offset = [0, 0];
+
+    // if present, the header is where you move the DIV from:
+    Window_Object.querySelector(".Header").onmousedown = main_drag;
+    Window_Object.querySelector(".Header").ontouchstart = main_drag;
+
+
+    function main_drag(main_event) {
+
+        main_event = main_event || window.event;
+        main_event.preventDefault();
+
+        // get the mouse cursor position at startup:
+
+        if (main_event.type === "touchstart") {
+            object.position.initial[0] = main_event.touches[0].clientX - object.offset[0];
+            object.position.initial[1] = main_event.touches[0].clientY - object.offset[1];
+        }
+        else {
+            object.position.initial[0] = main_event.clientX - object.offset[0];
+            object.position.initial[1] = main_event.clientY - object.offset[1]
+        }
+
+        // call a function whenever the cursor moves:
+        Main_WebOS.onmousemove = drag;
+        Main_WebOS.ontouchmove = drag;
+
+
+        function drag(event) {
+            event = event || window.event;
+            event.preventDefault();
+
+            // calculate the new cursor position:
+            if (event.type === "touchmove") {
+                object.position.current[0] = event.touches[0].clientX - object.position.initial[0];
+                object.position.current[1] = event.touches[0].clientY - object.position.initial[1];
+            } 
+            else {
+                object.position.current[0] = event.clientX - object.position.initial[0];
+                object.position.current[1] = event.clientY - object.position.initial[1];
+            }
+
+            // set the element's new position:
+            setTranslate(object, Window_Object);
+
+            object.offset[0] = object.position.current[0];
+            object.offset[1] = object.position.current[1];
+        }
+
+        Main_WebOS.onmouseup = stop;
+        Main_WebOS.ontouchend = stop;
+
+        document.onmouseout=function(event){ 
+            if(event.toElement===null) {
+                stop(event);
+            }
+        }
+        
+        function stop(event) {
+            // stop moving when mouse button is released:
+            Main_WebOS.onmouseup = null;
+            Main_WebOS.onmousemove = null;
+            Main_WebOS.ontouchend = null;
+            Main_WebOS.ontouchmove = null;
+            document.onmouseout = null;
+            object.position.initial[0] = object.position.current[0];
+            object.position.initial[1] = object.position.current[1];
+            return;
+        }
+
+        function setTranslate(object, Window_Object) {
+            Window_Object.style.transform = "translate3d(" + object.position.current[0] + "px, " + object.position.current[1] + "px, 0)";
+        }
+
+    }
+
+}
+
+
+</script>
